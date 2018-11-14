@@ -15,13 +15,13 @@ def convert_to_wav(input_path, output_path):
     return 'File ' + input_path + ' was successfully converted to ' + output_path
 
 
-def print_spectogram(output_file):
+def print_spectrogram(output_file):
     sample_rate, samples = wavfile.read(output_file)
-    fraquencies, times, spectogram = signal.spectrogram(samples, sample_rate)
+    frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
 
-    plt.pcolormesh(times, fraquencies, spectogram)
-    plt.imshow(spectogram)
-    plt.ylabel('Fraquency [Hz]')
+    plt.pcolormesh(times, frequencies, spectrogram)
+    plt.imshow(spectrogram)
+    plt.ylabel('Frequency [Hz]')
     plt.xlabel('Time [sec]')
     plt.show()
     return 'Painting plot...'
@@ -33,5 +33,5 @@ output_file = path_to_file[:-2] + 'wav'
 result = convert_to_wav(path_to_file, output_file)
 print(result)
 
-# Painting spectogram
-print_spectogram(output_file)
+# Painting spectrogram
+print_spectrogram(output_file)
