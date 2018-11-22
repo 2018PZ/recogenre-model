@@ -54,6 +54,18 @@ def print_MEL_spectrogram(output_file):
     return 'Painting plot...'
 
 
+def create_and_save_spectrogram(output_file):
+    S = create_MEL_spectrogram(output_file)
+    plt.figure(figsize=(10, 4))
+    librosa.display.specshow(librosa.power_to_db(S, ref=np.max), fmax=8000)
+    plt.colorbar(format='%+2.0f dB')
+
+    name = output_file[:-4]
+    plt.title(name)
+    plt.savefig(name, bbox_iches='tight')
+    return 'Save sectrogram to file: ' + name + '.png'
+
+
 # Preparing file
 path_to_file = pjoin('../data', 'die.au')
 # path_to_file = pjoin('../data', 'disco.00000.au')
@@ -64,3 +76,5 @@ print(result)
 
 # Painting spectrogram
 print_MEL_spectrogram(output_file)
+
+create_and_save_spectrogram(output_file)
