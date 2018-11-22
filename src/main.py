@@ -58,11 +58,9 @@ def create_and_save_spectrogram(output_file):
     S = create_MEL_spectrogram(output_file)
     plt.figure(figsize=(10, 4))
     librosa.display.specshow(librosa.power_to_db(S, ref=np.max), fmax=8000)
-    plt.colorbar(format='%+2.0f dB')
 
     name = output_file[:-4]
-    plt.title(name)
-    plt.savefig(name, bbox_iches='tight')
+    plt.savefig(name, bbox_inches='tight', pad_inches=-0.1, transparent=True, frameon=None, format=None)
     return 'Save sectrogram to file: ' + name + '.png'
 
 
@@ -75,6 +73,6 @@ result = convert_to_wav(path_to_file, output_file)
 print(result)
 
 # Painting spectrogram
-print_MEL_spectrogram(output_file)
+# print_MEL_spectrogram(output_file)
 
 create_and_save_spectrogram(output_file)
