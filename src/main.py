@@ -14,12 +14,14 @@ from tensorflow import keras
 
 import librosa
 
+from src.read_data import get_train_paths
+
 
 def convert_to_wav(input_path, output_path):
     if os.path.isfile(output_file):
         return 'File ' + output_file + ' already exists'
     ff = FFmpeg(inputs={input_path: None}, outputs={output_path: None})
-    ff.cmd
+    # ff.cmd
     ff.run()
     return 'File ' + input_path + ' was successfully converted to ' + output_path
 
@@ -36,17 +38,16 @@ def print_spectrogram(output_file):
     return 'Painting plot...'
 
 
-def create_MEL_spectrogram(output_file):
+def create_mel_spectrogram(output_file):
     y, sr = librosa.load(output_file)
-    S = librosa.feature.melspectrogram(y=y, sr=sr)
-    return S
+    return librosa.feature.melspectrogram(y=y, sr=sr)
 
 
-def print_MEL_spectrogram(output_file):
-    S = create_MEL_spectrogram(output_file)
+def print_mel_spectrogram(output_file):
+    spec = create_mel_spectrogram(output_file)
 
     plt.figure(figsize=(10, 4))
-    librosa.display.specshow(librosa.power_to_db(S, ref=np.max), fmax=8000)
+    librosa.display.specshow(librosa.power_to_db(spec, ref=np.max), fmax=8000)
     plt.colorbar(format='%+2.0f dB')
     plt.title(output_file)
     plt.show()
@@ -55,9 +56,9 @@ def print_MEL_spectrogram(output_file):
 
 
 def create_and_save_spectrogram(output_file):
-    S = create_MEL_spectrogram(output_file)
+    spec = create_mel_spectrogram(output_file)
     plt.figure(figsize=(10, 4))
-    librosa.display.specshow(librosa.power_to_db(S, ref=np.max), fmax=8000)
+    librosa.display.specshow(librosa.power_to_db(spec, ref=np.max), fmax=8000)
 
     name = output_file[:-4]
     plt.savefig(name, bbox_inches='tight', pad_inches=-0.1, transparent=True, frameon=None, format=None)
@@ -76,3 +77,13 @@ print(result)
 # print_MEL_spectrogram(output_file)
 
 create_and_save_spectrogram(output_file)
+
+#
+# train_au_path_list = get_train_paths()
+# # for file in path_list:
+# file = train_au_path_list[1]
+# output = file[:-2] + 'wav'
+# print(output)
+# convert_to_wav(file, output)
+
+
