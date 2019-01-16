@@ -1,5 +1,4 @@
 import os.path
-from os.path import join as pjoin
 from ffmpy import FFmpeg
 # spectrogram
 import matplotlib.pyplot as plt
@@ -8,10 +7,6 @@ from scipy.io import wavfile
 # mel spectrogram
 import numpy as np
 import librosa.display
-# neuron networks
-import tensorflow as tf
-from tensorflow import keras
-
 import librosa
 
 from src.read_data import get_train_paths

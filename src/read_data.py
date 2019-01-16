@@ -1,7 +1,7 @@
 import os
 import glob
 
-from src import Config
+from src.old import Config
 
 
 def get_train_paths():
