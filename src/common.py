@@ -20,7 +20,7 @@ def get_layer_output_function(model, layer_name):
     return lambda x: f([x, 0])[0]  # learning_phase = 0 means test
 
 
-def load_spectrogram(filename):
+def create_mel_spectrogram(filename):
     new_input, sample_rate = librosa.load(filename, mono=True)
     return librosa.feature.melspectrogram(new_input, **MEL_KWARGS).T
 
@@ -38,3 +38,5 @@ def load_track(filename, enforce_shape=None):
 
     features[features == 0] = 1e-6
     return np.log(features), float(new_input.shape[0]) / sample_rate
+
+

@@ -9,6 +9,7 @@ import numpy as np
 import librosa.display
 import librosa
 
+from src.common import create_mel_spectrogram
 from src.read_data import get_train_paths
 from src.read_data import get_wav_destinations
 from src.read_data import get_spec_destinations
@@ -35,17 +36,13 @@ def print_spectrogram(output_file):
     return 'Painting plot...'
 
 
-def create_mel_spectrogram(output_file):
-    y, sr = librosa.load(output_file)
-    return librosa.feature.melspectrogram(y=y, sr=sr)
-
-
 def print_mel_spectrogram(output_file):
     spec = create_mel_spectrogram(output_file)
 
     plt.figure(figsize=(10, 4))
+    # librosa.display.specshow(spec, fmax=8000)
     librosa.display.specshow(librosa.power_to_db(spec, ref=np.max), fmax=8000)
-    plt.colorbar(format='%+2.0f dB')
+    # plt.colorbar(format='%+2.0f dB')
     plt.title(output_file)
     plt.show()
     # plt.tight_layout()
@@ -62,30 +59,25 @@ def create_and_save_spectrogram(input_file, output_file):
 
 
 # Preparing file
-# path_to_file = pjoin('../data', 'die.au')
-# output_file = path_to_file[:-2] + 'wav'
-# result = convert_to_wav(path_to_file, output_file)
-# print(result)
-#
-# # Painting spectrogram
-# # print_MEL_spectrogram(output_file)
-#
+output_file = '../../data/genres/blues/blues.00000.au'
+# Painting spectrogram
+print_mel_spectrogram(output_file)
 # create_and_save_spectrogram(output_file)
 
 
-train_au_path_list = get_train_paths()
-train_wav_path_list = get_wav_destinations()
-nuber_of_files = train_wav_path_list.__len__()
-
-for x in range(0, nuber_of_files):
-    convert_to_wav(train_au_path_list[x], train_wav_path_list[x])
-
-spectrograms = get_spec_destinations()
-
-print(spectrograms)
-
-for x in range(0, nuber_of_files):
-    create_and_save_spectrogram(train_wav_path_list[x], spectrograms[x])
+# train_au_path_list = get_train_paths()
+# train_wav_path_list = get_wav_destinations()
+# nuber_of_files = train_wav_path_list.__len__()
+#
+# for x in range(0, nuber_of_files):
+#     convert_to_wav(train_au_path_list[x], train_wav_path_list[x])
+#
+# spectrograms = get_spec_destinations()
+#
+# print(spectrograms)
+#
+# for x in range(0, nuber_of_files):
+#     create_and_save_spectrogram(train_wav_path_list[x], spectrograms[x])
 
 
 # for file in path_list:
