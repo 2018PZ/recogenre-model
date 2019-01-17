@@ -8,8 +8,7 @@ TRACK_COUNT = 1000
 
 
 def get_default_shape(dataset_path):
-    tmp_features, _ = load_track(os.path.join(dataset_path,
-        'blues/blues.00000.au'))
+    tmp_features, _ = load_track(os.path.join(dataset_path, 'blues/blues.00000.au'))
     print(tmp_features)
     return tmp_features.shape
 
@@ -31,8 +30,7 @@ def collect_data(dataset_path):
 
     for (genre_index, genre_name) in enumerate(GENRES):
         for i in range(TRACK_COUNT // len(GENRES)):
-            file_name = '{}/{}.000{}.au'.format(genre_name,
-                    genre_name, str(i).zfill(2))
+            file_name = '{}/{}.000{}.au'.format(genre_name, genre_name, str(i).zfill(2))
             print('Processing', file_name)
             path = os.path.join(dataset_path, file_name)
             track_index = genre_index  * (TRACK_COUNT // len(GENRES)) + i
@@ -45,12 +43,11 @@ def collect_data(dataset_path):
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option('-d', '--dataset_path', dest='dataset_path',
-            default=os.path.join('../', 'data/genres'),
-            help='path to the GTZAN dataset directory', metavar='DATASET_PATH')
+    parser.add_option('-d', '--dataset_path', dest='dataset_path', default=os.path.join('../', 'data/genres'),
+                      help='path to the GTZAN dataset directory', metavar='DATASET_PATH')
     parser.add_option('-o', '--output_pkl_path', dest='output_pkl_path',
-            default=os.path.join('../', 'data/musicData.pkl'),
-            help='path to the output pickle', metavar='OUTPUT_PKL_PATH')
+                      default=os.path.join('../', 'data/musicData.pkl'), help='path to the output pickle',
+                      metavar='OUTPUT_PKL_PATH')
     options, args = parser.parse_args()
 
     (x, y, track_paths) = collect_data(options.dataset_path)

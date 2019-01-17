@@ -9,7 +9,7 @@ import numpy as np
 import librosa.display
 import librosa
 
-from src.common import create_mel_spectrogram
+from src.common import create_mel_spectrogram, load_track
 from src.read_data import get_train_paths
 from src.read_data import get_wav_destinations
 from src.read_data import get_spec_destinations
@@ -63,6 +63,18 @@ output_file = '../../data/genres/blues/blues.00000.au'
 # Painting spectrogram
 print_mel_spectrogram(output_file)
 # create_and_save_spectrogram(output_file)
+
+
+# spec = load_track(output_file)
+# print(len(spec))
+# print(len(spec[0]))
+# print(spec[1])
+#
+# output_file = '../../data/die.au'
+# spec = load_track(output_file)
+# print(len(spec))
+# print(len(spec[0]))
+# print(spec[1])
 
 
 # train_au_path_list = get_train_paths()
