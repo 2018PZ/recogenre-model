@@ -15,7 +15,7 @@ N_LAYERS = 3
 FILTER_LENGTH = 5
 CONV_FILTER_COUNT = 256
 BATCH_SIZE = 32
-EPOCH_COUNT = 100
+EPOCH_COUNT = 10
 
 
 def create_data_sets(data):
@@ -62,7 +62,6 @@ def build_model(x_train):
     )
 
     print(model.summary())
-    # print(model.layers)
     return model
 
 
@@ -85,6 +84,20 @@ def evaluate_model(x_val, y_val, model):
     return info
 
 
+def predict_model(x_test, model):
+    result = model.predict(x_test, batch_size=BATCH_SIZE)
+    # print(result)
+    for i in result:
+        print(i)
+    return result
+
+
+def load_trained_model(x_train, weights_path):
+    model = build_model(x_train)
+    model.load_weights(weights_path)
+    return model
+
+
 def create_model(data, model_path):
     (x_train, x_val, y_train, y_val) = create_data_sets(data)
 
@@ -92,7 +105,19 @@ def create_model(data, model_path):
 
     model = train_model(x_train, y_train, x_val, y_val, model_path, model)
 
-    model = evaluate_model(x_val, y_val, model)
+    evaluate_model(x_val, y_val, model)
+
+    return model
+
+
+def create_model_from_file(data, model_path):
+    (x_train, x_val, y_train, y_val) = create_data_sets(data)
+
+    model = load_trained_model(x_train, model_path)
+
+    evaluate_model(x_val, y_val, model)
+
+    predict_model(x_val, model)
 
     return model
 
@@ -101,11 +126,12 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-d', '--data_path', dest='data_path', default=os.path.join('../', 'data/musicData.pkl'),
             help='path to the data pickle', metavar='DATA_PATH')
-    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/model.h5'),
+    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/model10e.h5'),
             help='path to the output model HDF5 file', metavar='MODEL_PATH')
     options, args = parser.parse_args()
 
     with open(options.data_path, 'rb') as f:
         data = pickle.load(f)
 
-    create_model(data, options.model_path)
+    # create_model(data, options.model_path)
+    create_model_from_file(data, options.model_path)
