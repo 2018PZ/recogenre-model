@@ -17,7 +17,7 @@ N_LAYERS = 3
 FILTER_LENGTH = 5
 CONV_FILTER_COUNT = 256
 BATCH_SIZE = 32
-EPOCH_COUNT = 100
+EPOCH_COUNT = 10
 
 
 def create_data_sets(data):
@@ -25,6 +25,33 @@ def create_data_sets(data):
     y = data['y']
     (x_train, x_val, y_train, y_val) = train_test_split(x, y, test_size=0.3, random_state=SEED)
     return x_train, x_val, y_train, y_val
+
+
+def build_very_simple_model(x_train):
+    print('Building simple model...')
+
+    n_features = x_train.shape[2]
+    input_shape = (None, n_features)
+    model_input = Input(input_shape, name='input')
+    layer = model_input
+    layer = Convolution1D(filters=CONV_FILTER_COUNT, kernel_size=FILTER_LENGTH, name='convolution_1')(layer)
+    layer = Dense(len(GENRES))(layer)
+    merge_layer = Lambda(function=lambda x: K.mean(x, axis=1), output_shape=lambda shape: (shape[0],) + shape[2:],
+                         name='output_merged')
+    layer = merge_layer(layer)
+    layer = Activation('softmax', name='output_realtime')(layer)
+    model_output = layer
+
+    model = Model(model_input, model_output)
+    opt = Adam(lr=0.001)
+    model.compile(
+        loss='categorical_crossentropy',
+        optimizer=opt,
+        metrics=['accuracy']
+    )
+
+    print(model.summary())
+    return model
 
 
 def build_simple_model(x_train):
@@ -71,7 +98,7 @@ def build_model(x_train):
         layer = MaxPooling1D(2)(layer)
         layer = Dropout(0.5)(layer)
 
-    layer = TimeDistributed(Dense(len(GENRES)))(layer)
+    layer = Dense(len(GENRES))(layer)
     time_distributed_merge_layer = Lambda(
         function=lambda x: K.mean(x, axis=1),
         output_shape=lambda shape: (shape[0],) + shape[2:],
@@ -101,7 +128,7 @@ def train_model(x_train, y_train, x_val, y_val, model_path, model):
             ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=10, min_delta=0.01, verbose=1)
         ]
     )
-    save_history(hist, '../models/historyPlot_simple100e.png')
+    save_history(hist, '../models/historyPlot_bezDense10e.png')
     return model
 
 
@@ -121,6 +148,7 @@ def predict_model(x_test, model):
 
 
 def load_trained_model(x_train, weights_path):
+    # model = build_simple_model(x_train)
     model = build_model(x_train)
     model.load_weights(weights_path)
     return model
@@ -129,8 +157,8 @@ def load_trained_model(x_train, weights_path):
 def create_model(data, model_path):
     (x_train, x_val, y_train, y_val) = create_data_sets(data)
 
-    model = build_simple_model(x_train)
-    # model = build_model(x_train)
+    # model = build_simple_model(x_train)
+    model = build_model(x_train)
 
     model = train_model(x_train, y_train, x_val, y_val, model_path, model)
 
@@ -155,7 +183,7 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-d', '--data_path', dest='data_path', default=os.path.join('../', 'data/musicData.pkl'),
             help='path to the data pickle', metavar='DATA_PATH')
-    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/simple_model100e.h5'),
+    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/modelbezDense10e.h5'),
             help='path to the output model HDF5 file', metavar='MODEL_PATH')
     options, args = parser.parse_args()
 
