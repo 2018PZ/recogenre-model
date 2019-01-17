@@ -1,6 +1,6 @@
 from src.common import GENRES
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
-from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Input, Dense, Lambda, Dropout, Activation, TimeDistributed, Convolution1D, \
@@ -10,12 +10,14 @@ import pickle
 from optparse import OptionParser
 import os
 
+from src.plots import save_history
+
 SEED = 42
 N_LAYERS = 3
 FILTER_LENGTH = 5
 CONV_FILTER_COUNT = 256
 BATCH_SIZE = 32
-EPOCH_COUNT = 100
+EPOCH_COUNT = 10
 
 
 def create_data_sets(data):
@@ -62,12 +64,8 @@ def build_model(x_train):
     model_input = Input(input_shape, name='input')
     layer = model_input
     for i in range(N_LAYERS):
-        # second convolutional layer names are used by extract_filters.py
-        layer = Convolution1D(
-            filters=CONV_FILTER_COUNT,
-            kernel_size=FILTER_LENGTH,
-            name='convolution_' + str(i + 1)
-        )(layer)
+        layer = Convolution1D(filters=CONV_FILTER_COUNT, kernel_size=FILTER_LENGTH,
+                              name='convolution_' + str(i + 1))(layer)
         layer = BatchNormalization(momentum=0.9)(layer)
         layer = Activation('relu')(layer)
         layer = MaxPooling1D(2)(layer)
@@ -96,13 +94,14 @@ def build_model(x_train):
 
 def train_model(x_train, y_train, x_val, y_val, model_path, model):
     print('Training...')
-    model.fit(
+    hist = model.fit(
         x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCH_COUNT, validation_data=(x_val, y_val), verbose=1,
         callbacks=[
             ModelCheckpoint(model_path, save_best_only=True, monitor='val_acc', verbose=1),
             ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=10, min_delta=0.01, verbose=1)
         ]
     )
+    save_history(hist, '../models/historyPlot_normal100e.png')
     return model
 
 
@@ -156,7 +155,7 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-d', '--data_path', dest='data_path', default=os.path.join('../', 'data/musicData.pkl'),
             help='path to the data pickle', metavar='DATA_PATH')
-    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/model.h5'),
+    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/model100e.h5'),
             help='path to the output model HDF5 file', metavar='MODEL_PATH')
     options, args = parser.parse_args()
 
