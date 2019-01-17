@@ -17,7 +17,7 @@ N_LAYERS = 3
 FILTER_LENGTH = 5
 CONV_FILTER_COUNT = 256
 BATCH_SIZE = 32
-EPOCH_COUNT = 10
+EPOCH_COUNT = 100
 
 
 def create_data_sets(data):
@@ -101,7 +101,7 @@ def train_model(x_train, y_train, x_val, y_val, model_path, model):
             ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=10, min_delta=0.01, verbose=1)
         ]
     )
-    save_history(hist, '../models/historyPlot_normal100e.png')
+    save_history(hist, '../models/historyPlot_simple100e.png')
     return model
 
 
@@ -129,8 +129,8 @@ def load_trained_model(x_train, weights_path):
 def create_model(data, model_path):
     (x_train, x_val, y_train, y_val) = create_data_sets(data)
 
-    # model = build_simple_model(x_train)
-    model = build_model(x_train)
+    model = build_simple_model(x_train)
+    # model = build_model(x_train)
 
     model = train_model(x_train, y_train, x_val, y_val, model_path, model)
 
@@ -155,7 +155,7 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-d', '--data_path', dest='data_path', default=os.path.join('../', 'data/musicData.pkl'),
             help='path to the data pickle', metavar='DATA_PATH')
-    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/model100e.h5'),
+    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/simple_model100e.h5'),
             help='path to the output model HDF5 file', metavar='MODEL_PATH')
     options, args = parser.parse_args()
 
