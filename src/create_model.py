@@ -78,15 +78,15 @@ def train_model(x_train, y_train, x_val, y_val, model_path, model):
 
 
 def evaluate_model(x_val, y_val, model):
+    print('Validation...')
     info = model.evaluate(x_val, y_val, verbose=0)
     print("SCORE: ", info[1])
-    # model.predict(x_train[0])
     return info
 
 
 def predict_model(x_test, model):
+    print('Predict...')
     result = model.predict(x_test, batch_size=BATCH_SIZE)
-    # print(result)
     for i in result:
         print(i)
     return result
