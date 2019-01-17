@@ -1,6 +1,6 @@
 from src.common import GENRES
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
-from tensorflow.keras.models import Model
+from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Input, Dense, Lambda, Dropout, Activation, TimeDistributed, Convolution1D, \
@@ -15,7 +15,7 @@ N_LAYERS = 3
 FILTER_LENGTH = 5
 CONV_FILTER_COUNT = 256
 BATCH_SIZE = 32
-EPOCH_COUNT = 10
+EPOCH_COUNT = 100
 
 
 def create_data_sets(data):
@@ -23,6 +23,35 @@ def create_data_sets(data):
     y = data['y']
     (x_train, x_val, y_train, y_val) = train_test_split(x, y, test_size=0.3, random_state=SEED)
     return x_train, x_val, y_train, y_val
+
+
+def build_simple_model(x_train):
+    print('Building simple model...')
+
+    n_features = x_train.shape[2]
+    input_shape = (None, n_features)
+    model_input = Input(input_shape, name='input')
+    layer = model_input
+    layer = Convolution1D(filters=CONV_FILTER_COUNT, kernel_size=FILTER_LENGTH, name='convolution_1')(layer)
+    layer = Dense(256, activation='relu')(layer)
+    layer = Dropout(0.5)(layer)
+    layer = Dense(len(GENRES))(layer)
+    merge_layer = Lambda(function=lambda x: K.mean(x, axis=1), output_shape=lambda shape: (shape[0],) + shape[2:],
+                         name='output_merged')
+    layer = merge_layer(layer)
+    layer = Activation('softmax', name='output_realtime')(layer)
+    model_output = layer
+
+    model = Model(model_input, model_output)
+    opt = Adam(lr=0.001)
+    model.compile(
+        loss='categorical_crossentropy',
+        optimizer=opt,
+        metrics=['accuracy']
+    )
+
+    print(model.summary())
+    return model
 
 
 def build_model(x_train):
@@ -39,10 +68,10 @@ def build_model(x_train):
             kernel_size=FILTER_LENGTH,
             name='convolution_' + str(i + 1)
         )(layer)
-        # layer = BatchNormalization(momentum=0.9)(layer)
+        layer = BatchNormalization(momentum=0.9)(layer)
         layer = Activation('relu')(layer)
         layer = MaxPooling1D(2)(layer)
-        # layer = Dropout(0.5)(layer)
+        layer = Dropout(0.5)(layer)
 
     layer = TimeDistributed(Dense(len(GENRES)))(layer)
     time_distributed_merge_layer = Lambda(
@@ -51,7 +80,7 @@ def build_model(x_train):
         name='output_merged'
     )
     layer = time_distributed_merge_layer(layer)
-    layer = Activation('softmax', name='output_realtime')(layer)  # softplus
+    layer = Activation('softmax', name='output_realtime')(layer)
     model_output = layer
     model = Model(model_input, model_output)
     opt = Adam(lr=0.001)
@@ -101,6 +130,7 @@ def load_trained_model(x_train, weights_path):
 def create_model(data, model_path):
     (x_train, x_val, y_train, y_val) = create_data_sets(data)
 
+    # model = build_simple_model(x_train)
     model = build_model(x_train)
 
     model = train_model(x_train, y_train, x_val, y_val, model_path, model)
@@ -126,12 +156,12 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-d', '--data_path', dest='data_path', default=os.path.join('../', 'data/musicData.pkl'),
             help='path to the data pickle', metavar='DATA_PATH')
-    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/model10e.h5'),
+    parser.add_option('-m', '--model_path', dest='model_path', default=os.path.join('../', 'models/model.h5'),
             help='path to the output model HDF5 file', metavar='MODEL_PATH')
     options, args = parser.parse_args()
 
     with open(options.data_path, 'rb') as f:
         data = pickle.load(f)
 
-    # create_model(data, options.model_path)
-    create_model_from_file(data, options.model_path)
+    create_model(data, options.model_path)
+    # create_model_from_file(data, options.model_path)
